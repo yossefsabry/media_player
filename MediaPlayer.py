@@ -1,3 +1,6 @@
+
+## import main library
+
 import sys
 import os
 from PyQt5.QtCore import *
@@ -27,7 +30,7 @@ class Window(QMainWindow):
     def __init__(self, parent=None, border=None):
         super(Window, self).__init__(parent)
         self.resize(860, 600)
-        self.setWindowTitle('Chitram Media Player')
+        self.setWindowTitle('Media Player')
         self.setWindowIcon(QIcon(':/icons/wicon_64x64.ico'))
         self.ui_init()
 
@@ -37,6 +40,7 @@ class Window(QMainWindow):
         menu = self.menuBar()
         file = menu.addMenu("File")
         file.addAction("Open File")
+        # showing the pop menu for file system to selected file
         file.triggered[QAction].connect(self.open_file)
 
         # ---- Creating Media Objects ---- #
@@ -44,15 +48,20 @@ class Window(QMainWindow):
         self.playlist    = QMediaPlaylist()
         self.mediaPlayer.setPlaylist(self.playlist)
 
+        # class that allows a video to be displayed inside box 
         self.videoItem = QGraphicsVideoItem()
         self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
 
+        # box that display videoItem and enable some options 
+        # like scroll for image
         scene = QGraphicsScene(self)
         graphicsView = QGraphicsView(scene)
         graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scene.addItem(self.videoItem)
 
+        # connects signals to functions that update the UI based on changes 
+        # in playback state, position, and duration.
         self.mediaPlayer.setVideoOutput(self.videoItem)
         self.mediaPlayer.stateChanged.connect(self.mediastate_changed)
         self.mediaPlayer.positionChanged.connect(self.position_changed)
@@ -67,10 +76,12 @@ class Window(QMainWindow):
         self.playlistView.setModel(self.model)
         self.playlist.currentIndexChanged.connect(self.playlist_position_changed)
 
+        # handle when click on playlist view and when click on song inside
         selection_model = self.playlistView.selectionModel()
         selection_model.selectionChanged.connect(self.playlist_selection_changed)
         self.playlistView.doubleClicked.connect(self.ply)
 
+        # connent inside window for playlist
         self.p_play = QPushButton("  Play Now ")
         self.p_play.setStyleSheet('background-color: rgb(32, 32, 32)')
         self.p_play.setEnabled(False)
@@ -99,6 +110,7 @@ class Window(QMainWindow):
         self.time_slider.setRange(0, 0)
         self.time_slider.sliderMoved.connect(self.set_position)
 
+        # the main progress for song blue
         self.totalTimeLabel = QLabel()
         self.totalTimeLabel.setMinimumSize(80, 0)
         self.totalTimeLabel.setAlignment(Qt.AlignCenter)
@@ -111,24 +123,28 @@ class Window(QMainWindow):
         self.plist.clicked.connect(self.plistview)
         self.plist.installEventFilter(self)
 
+        ## some buttons
         self.previous = QPushButton(" Prev")
         self.previous.setIcon(QIcon(":/icons/previous.png"))
         self.previous.pressed.connect(self.playlist.previous)
-        self.previous.setEnabled(False)
+        self.previous.setEnabled(False) # default until user loaded
+        # listen for event and intercept events
         self.previous.installEventFilter(self)
 
+        ## some buttens
         self.next = QPushButton(" Next")
         self.next.setIcon(QIcon(":/icons/next.png"))
         self.next.pressed.connect(self.playlist.next)
         self.next.setEnabled(False)
         self.next.installEventFilter(self)
 
+        ## some buttons
         self.skip_back = QPushButton()
         self.skip_back.setIcon(QIcon(":/icons/skip_back.png"))
         self.skip_back.setToolTip('Skip 5 sec backward')
         self.skip_back.setEnabled(False)
         self.skip_back.clicked.connect(self.backward)
-        self.skip_back.installEventFilter(self)
+        self.skip_back.installEventFilter(self) 
 
         self.play = QPushButton()
         self.play.setIcon(QIcon(":/icons/play.png"))
@@ -157,11 +173,13 @@ class Window(QMainWindow):
         self.playback.setEnabled(False)
         self.playback.installEventFilter(self)
 
+        # mute button
         self.mute = QPushButton()
         self.mute.setIcon(self.style().standardIcon(QStyle.SP_MediaVolume))
         self.mute.clicked.connect(self.mute_fn)
         self.mute.installEventFilter(self)
 
+        # volume button sidebar
         self.volume_slider = QSlider(Qt.Horizontal)
         self.volume_slider.setFixedWidth(100)
         self.volume_slider.setRange(0, 100)
@@ -169,6 +187,8 @@ class Window(QMainWindow):
         self.volume_slider.valueChanged.connect(self.mediaPlayer.setVolume)
 
 
+        ## TODO (FIX NOT WORKIGN)
+        # full screen 
         self.aspr = QPushButton()
         self.aspr.setIcon(QIcon(":/icons/aspr.png"))
         self.aspr.setStyleSheet('border-radius: 5px ;''background-color:#626262')
@@ -280,9 +300,12 @@ class Window(QMainWindow):
 
     # --- Function to Open files and add them to playlist --- #
     def open_file(self):
-        filenames, _ = QFileDialog.getOpenFileNames(self, "Open Video", "", "*.mp4 *.webm *.3gp *.mkv, *.avi *.mov *.mp3 *.wav *.wma *.wmv *.flac *.3g2 *.m4a *.m4v *.aac *.asf *.3gpp';;All Files (*.*)") #
-        filetype = ['.mp4', '.3gp', '.mkv', '.avi', '.mov', '.mp3', '.wav', '.wma', '.wmv', '.flac', '.3g2', '.m4a', '.m4v', '.aac', '.asf', '.3gpp', '.flv', '.webm']
-        #filetype_caps = ['.MP4', '.3GP', '.MKV', '.AVI', '.MOV', '.MP3', '.WAV', '.WMA', '.WMV', '.FLAC', '.3G2', '.M4A', '.M4V', '.AAC', '.ASF', '.3GPP', '.FLV']
+        filenames, _ = QFileDialog.getOpenFileNames(self, "Open Video",
+            "", "*.mp4 *.webm *.3gp *.mkv, *.avi *.mov *.mp3 *.wav *.wma \
+            *.wmv *.flac *.3g2 *.m4a *.m4v *.aac *.asf *.3gpp';;All Files (*.*)") #
+        filetype = ['.mp4', '.3gp', '.mkv', '.avi', '.mov', '.mp3', '.wav',
+        '.wma', '.wmv', '.flac', '.3g2', '.m4a', '.m4v', '.aac', '.asf',
+            '.3gpp', '.flv', '.webm']
         if filenames:
             for file in filenames:
                 if any(x in file for x in filetype):
@@ -290,9 +313,9 @@ class Window(QMainWindow):
                 else:
                     pass
 
+        # play song and enable buttons
         self.mediaPlayer.play()
         self.model.layoutChanged.emit()
-
         self.previous.setEnabled(True)
         self.next.setEnabled(True)
         self.skip_back.setEnabled(True)
@@ -341,7 +364,7 @@ class Window(QMainWindow):
     #-- Function to select playback speed --- #
     def playback_speed(self, action):
         #print("triggred : ", action.text())
-        if action.text() == "1x       Normal":
+        if action.text() == "1x  Normal":
             self.mediaPlayer.setPlaybackRate(1.0)
             self.pb_speed.setText("1x")
         elif action.text() == "0.25x":
