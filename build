@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
-
-
 python3 MediaPlayer.py 
+

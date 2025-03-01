@@ -1,4 +1,4 @@
 PyQt5
 PyQt5-sip
 PyQt5-Qt5
-
+auto-py-to-exe
