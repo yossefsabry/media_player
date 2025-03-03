@@ -2,7 +2,6 @@
 ## import main library
 
 import sys
-import os
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -11,18 +10,15 @@ from PyQt5.QtMultimediaWidgets import *
 import icon_resource
 
 ##################################################################################################
-# I made this media player by referring the following sources.                                   #
-# credits:-                                                                                      #
+# ---------------------------------------------------------------------------------------------- #
+# PyQt5 Documentation : https://doc.qt.io/qtforpython-5/PySide2/QtMultimedia/QMediaPlayer.html   #
+# Book for reference  : "Create GUI Applications with Python&Qt5" by Martin Fitzpatrick          #
+# SOME REFERENCES
 # https://codeloop.org/python-how-to-create-media-player-in-pyqt5/                               #
 # https://www.pythonguis.com/examples/python-multimedia-player/                                  #
 # https://stackoverflow.com/questions/41612790/pyqt5-videowidget-not-showing-in-layout           #
 # https://gist.github.com/QuantumCD/6245215                                                      #
 # ---------------------------------------------------------------------------------------------- #
-# Packaging PyQt5 applications for Windows:-                                                     #
-# https://www.pythonguis.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/ #
-# ---------------------------------------------------------------------------------------------- #
-# PyQt5 Documentation : https://doc.qt.io/qtforpython-5/PySide2/QtMultimedia/QMediaPlayer.html   #
-# Book for reference  : "Create GUI Applications with Python&Qt5" by Martin Fitzpatrick          #
 ##################################################################################################
 
 
@@ -301,11 +297,11 @@ class Window(QMainWindow):
     # --- Function to Open files and add them to playlist --- #
     def open_file(self):
         filenames, _ = QFileDialog.getOpenFileNames(self, "Open Video",
-            "", "*.mp4 *.webm *.3gp *.mkv, *.avi *.mov *.mp3 *.wav *.wma \
+                "", "*.mp4 *.webm *.3gp *.mkv, *.avi *.mov *.mp3 *.wav *.wma \
             *.wmv *.flac *.3g2 *.m4a *.m4v *.aac *.asf *.3gpp';;All Files (*.*)") #
         filetype = ['.mp4', '.3gp', '.mkv', '.avi', '.mov', '.mp3', '.wav',
-        '.wma', '.wmv', '.flac', '.3g2', '.m4a', '.m4v', '.aac', '.asf',
-            '.3gpp', '.flv', '.webm']
+                    '.wma', '.wmv', '.flac', '.3g2', '.m4a', '.m4v', '.aac', '.asf',
+                    '.3gpp', '.flv', '.webm']
         if filenames:
             for file in filenames:
                 if any(x in file for x in filetype):
@@ -338,10 +334,12 @@ class Window(QMainWindow):
         self.playlist.removeMedia(self.i)
         self.model.layoutChanged.emit()
 
+    # using for extract the selected song from playlist
     def playlist_selection_changed(self, ix):
         # We receive a QItemSelection from selectionChanged.
         self.i = ix.indexes()[0].row()
 
+    # change the position for selected song
     def playlist_position_changed(self, i):
         if i > -1:
             ix = self.model.index(i)
@@ -355,6 +353,7 @@ class Window(QMainWindow):
             self.stack.setCurrentIndex(0)
 
     # -- Function to change aspect ratio -- #
+    ## FIX: TODO
     def aspRatio(self):
         if self.aspr.isChecked():
             self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
@@ -403,7 +402,7 @@ class Window(QMainWindow):
         else:
             self.mediaPlayer.setPlaybackRate(1.0)
 
-    # -- Function to select playback mode  --- #
+    # -- Function to select playback mode in playlist show mode  --- #
     def playback_mode(self):
         if self.playlist.playbackMode() == QMediaPlaylist.Sequential:
             #print("playback mode changed to Loop")
@@ -427,7 +426,7 @@ class Window(QMainWindow):
             #print("playback mode changed to Sequntial")
             self.playlist.setPlaybackMode(QMediaPlaylist.Sequential)
             self.playback.setIcon(QIcon(":/icons/loop_off.png"))
-            self.playback_Label.setText(" Current Playlist is in Loop off")
+            self.playback_Label.setText("Current Playlist is in Loop off")
 
     # --- Function to Play or Pause ----- #
     def play_video(self):
@@ -443,28 +442,32 @@ class Window(QMainWindow):
         else:
             self.play.setIcon(QIcon(":/icons/play.png"))
 
+    # for update the time slider for song
     def position_changed(self, position):
         self.time_slider.blockSignals(True)
         self.time_slider.setValue(position)
         self.time_slider.blockSignals(False)
         if position >= 0:
+            # starging move
             self.currentTimeLabel.setText(hhmmss(position))
 
+    # update the duration
     def duration_changed(self, duration):
         self.time_slider.setRange(0, duration)
         if duration >= 0:
             self.totalTimeLabel.setText(hhmmss(duration))
 
+    # update the position for song
     def set_position(self, position):
         self.mediaPlayer.setPosition(position)
 
     # -- Functions to skip 5 sec back and forward --- #
     def backward(self):
         self.mediaPlayer.setPosition(self.mediaPlayer.position() - 5000)
-
     def forward(self):
         self.mediaPlayer.setPosition(self.mediaPlayer.position() + 5000)
 
+    # mute button
     def mute_fn(self):
         if self.mediaPlayer.isMuted():
             self.mediaPlayer.setMuted(False)
@@ -473,46 +476,6 @@ class Window(QMainWindow):
             self.mediaPlayer.setMuted(True)
             self.mute.setIcon(self.style().standardIcon(QStyle.SP_MediaVolumeMuted))
 
-    # -- Function to avoid spacebar control over all buttons except for play/pause button
-    def eventFilter(self,  widget, event):
-        if event.type() == QEvent.KeyPress and widget is self.plist:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.playback:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.p_play:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.rm:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.skip_back:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.stop:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.skip_forward:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.mute:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.aspr:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.pb_speed:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.previous:
-            if event.key() == Qt.Key_Space:
-                return True
-        elif event.type() == QEvent.KeyPress and widget is self.next:
-            if event.key() == Qt.Key_Space:
-                return True
-
-        return super(Window, self).eventFilter(widget, event)
 
     # -- Function for shortcut keys -- #
     def keyPressEvent(self, event):
@@ -549,11 +512,11 @@ class PlaylistModel(QAbstractListModel):
         self.playlist = playlist
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole: # return info about the song that display
             media = self.playlist.media(index.row())
             return media.canonicalUrl().fileName()
 
-    def rowCount(self, index):
+    def rowCount(self, index): # return count for song in playlist
         return self.playlist.mediaCount()
 
 
@@ -585,14 +548,15 @@ def main():
     sys.exit(app.exec_())
 
 
+# --- function to convert from milliseconds to hh:mm:ss
 def hhmmss(ms):
-    # --- function to convert from milliseconds to hh:mm:ss
     s = round(ms / 1000)
     m, s = divmod(s, 60)
     h, m = divmod(m, 60)
     return ("%d:%02d:%02d" % (h, m, s)) if h else ("%d:%02d" % (m, s))
 
+# starting run
 if __name__ == '__main__':
     # ---- for Windows OS the preferred plugin to support media files -- #
-    os.environ['QT_MULTIMEDIA_PREFERRED_PLUGINS'] = 'windowsmediafoundation'
+    # os.environ['QT_MULTIMEDIA_PREFERRED_PLUGINS'] = 'windowsmediafoundation'
     main()
