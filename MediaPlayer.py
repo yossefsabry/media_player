@@ -44,7 +44,7 @@ class Window(QMainWindow):
         self.playlist    = QMediaPlaylist()
         self.mediaPlayer.setPlaylist(self.playlist)
 
-        # class that allows a video to be displayed inside box 
+        # class that allows a video to be displayed inside box (frame)
         self.videoItem = QGraphicsVideoItem()
         self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
 
@@ -541,7 +541,10 @@ def main():
     dark_palette.setColor(QPalette.HighlightedText, Qt.black)
 
     app.setPalette(dark_palette)
-    app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid silver; }")
+    app.setStyleSheet(
+        "QToolTip { color: #ffffff; background-color: #2a82da;\
+        border: 1px solid silver; }"
+    )
     # ---- Create window object --------- #
     mp = Window()
     mp.show()
