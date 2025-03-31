@@ -1,3 +1,5 @@
+# todo : add record button and function
+
 
 ## import main library
 
@@ -42,11 +44,17 @@ class Window(QMainWindow):
         # ---- Creating Media Objects ---- #
         self.mediaPlayer = QMediaPlayer()
         self.playlist    = QMediaPlaylist()
+
         self.mediaPlayer.setPlaylist(self.playlist)
 
         # class that allows a video to be displayed inside box (frame)
         self.videoItem = QGraphicsVideoItem()
         self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
+        
+        # ## record  video
+        # self.recording = False
+        # self.recorder = QMediaRecorder(self.mediaPlayer) #Initialize self.recorder here with the media player as the media object
+        # self.recorder.setOutputLocation(QUrl.fromLocalFile("output.mp4"))
 
         # box that display videoItem and enable some options 
         # like scroll for image
@@ -215,6 +223,10 @@ class Window(QMainWindow):
         self.menu.triggered.connect(self.playback_speed)
         self.pb_speed.setMenu(self.menu)
 
+        
+        # Add record button
+        # self.record_button = QPushButton("Record")
+        # self.record_button.clicked.connect(self.toggle_recording)
 
         # ------------ Setting widgets and Layout ---------- #
         self.vbox   = QVBoxLayout()
@@ -246,6 +258,8 @@ class Window(QMainWindow):
         #self.hbox_2.addStretch()
         self.hbox_2.addWidget(self.pb_speed)
         self.hbox_2.addWidget(self.aspr)
+        # self.hbox_2.addWidget(self.record_button) # Add record button to layout
+
 
         self.gb.setLayout(self.hbox_2)
 
@@ -285,10 +299,27 @@ class Window(QMainWindow):
         widget = QWidget()
         widget.setLayout(self.vbox)
         self.setCentralWidget(widget)
+
     # --- end of UI function ----#
 
     # ---- Function to Resize video display --- #
-    def resizeEvent(self, event):
+
+
+    # def toggle_recording(self):
+    #     if not self.recording:
+    #         file_path, _ = QFileDialog.getSaveFileName(self, 
+    #            "Save Recording", "", "*.mp4;;All Files (*)")
+    #         if file_path:
+    #             self.recorder.setOutputLocation(QUrl.fromLocalFile(file_path))
+    #             self.recorder.record()
+    #             self.recording = True
+    #             self.record_button.setText("Stop Recording")
+    #         else:
+    #             self.recorder.stop()
+    #             self.recording = False
+    #             self.record_button.setText("Record")
+    #
+    def resizeEvent(self, event): # pyright: ignore
         #print("W", self.width(), "H", self.height())
         h = self.height() - 125
         w = self.width() - 26
