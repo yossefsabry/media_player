@@ -1,6 +1,5 @@
 # todo : add record button and function
 
-
 ## import main library
 
 import sys
