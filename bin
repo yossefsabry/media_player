@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+
+import os
+import subprocess
+import shutil
+
+def create_deb_package(project_dir, output_dir):
+    """Creates a Debian package (.deb) for the given project."""
+
+    # 1. Check for dpkg-buildpackage
+    try:
+        subprocess.run(["dpkg-buildpackage", "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except FileNotFoundError:
+        print("Error: dpkg-buildpackage not found. Install 'dpkg-dev'.")
+        return
+
+    # 2. Create debian directory if it doesn't exist
+    debian_dir = os.path.join(project_dir, "debian")
+    if not os.path.exists(debian_dir):
+        os.makedirs(debian_dir)
+        print("Created debian directory.")
+
+    # 3. Create debian/control file
+    control_content = """
+Source: mdq
+Section: sound
+Priority: optional
+Maintainer: Your Name <your.email@example.com>
+Build-Depends: debhelper (>= 12), python3, python3-setuptools
+Standards-Version: 4.5.0
+Homepage: <Your Project Homepage>
+
+Package: mdq
+Architecture: all
+Depends: ${misc:Depends}, python3
+Description: A simple media player.
+ A more detailed description of your media player.
+"""
+
+    with open(os.path.join(debian_dir, "control"), "w") as f:
+        f.write(control_content)
+
+    # 4. Create debian/rules file
+    rules_content = """
+#!/usr/bin/make -f
+
+%:
+\tdh $@ --with python3
+
+override_dh_auto_install:
+\tdh_auto_install --destdir=debian/tmp
+\t#If you must copy pyqt6 libraries from pip, add copy commands here.
+\t#Example:
+\t#cp -r /path/to/venv/lib/python3.10/site-packages/PyQt6 debian/tmp/usr/lib/python3/dist-packages/
+"""
+
+    with open(os.path.join(debian_dir, "rules"), "w") as f:
+        f.write(rules_content)
+    os.chmod(os.path.join(debian_dir, "rules"), 0o755)  # Make executable
+
+    # 5. Create debian/install file
+    install_content = """
+MediaPlayer.py usr/bin/mdq
+icons/* usr/share/mdq/icons/
+icon_resource.py usr/share/mdq/
+icon_resource.qrc usr/share/mdq/
+"""
+
+    with open(os.path.join(debian_dir, "install"), "w") as f:
+        f.write(install_content)
+
+    # 6. Create debian/compat file
+    compat_content = "12"
+
+    with open(os.path.join(debian_dir, "compat"), "w") as f:
+        f.write(compat_content)
+
+    # 7. Create debian/changelog file
+    changelog_content = """
+mdq (1.0.0-1) unstable; urgency=low
+
+* Initial release.
+
+-- Your Name <your.email@example.com>  Thu, 01 Jan 2024 00:00:00 +0000
+"""
+
+    with open(os.path.join(debian_dir, "changelog"), "w") as f:
+        f.write(changelog_content)
+
+    # 8. Build the debian package
+    try:
+        subprocess.run(["dpkg-buildpackage", "-uc", "-us"], cwd=project_dir, check=True)
+
+        deb_files = [f for f in os.listdir(project_dir) if f.endswith(".deb")]
+        if deb_files:
+            deb_file = deb_files[0]
+            shutil.move(os.path.join(project_dir, deb_file), os.path.join(output_dir, deb_file))
+            print(f"Debian package created: {os.path.join(output_dir, deb_file)}")
+        else:
+            print("Error: No .deb file was created.")
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error building debian package: {e}")
+
+if __name__ == "__main__":
+    project_directory = os.getcwd()
+    output_directory = os.path.join(project_directory, "dist")
+
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    create_deb_package(project_directory, output_directory)
