@@ -1,14 +1,56 @@
 # todo : add record button and function
 
 ## import main library
+import os
+import platform
+import subprocess
 
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtMultimedia import *
-from PyQt5.QtMultimediaWidgets import *
+from PyQt5.QtCore import Qt, QUrl, QSizeF, QAbstractListModel
+from PyQt5.QtGui import (
+    QIcon,
+    QPalette,
+    QColor,
+)
+from PyQt5.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QFileDialog,
+    QGraphicsView,
+    QGraphicsScene,
+    QSlider,
+    QPushButton,
+    QLabel,
+    QVBoxLayout,
+    QHBoxLayout,
+    QWidget,
+    QListView,
+    QStackedWidget,
+    QGroupBox,
+    QStyle,
+    QMenu,
+    QAction,
+)
+from PyQt5.QtMultimedia import (
+    QMediaPlayer,
+    QMediaPlaylist,
+    QMediaContent,
+    # for recording
+    QMediaRecorder,
+    QCamera,
+    QCameraInfo,
+)
+
+from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 import icon_resource
+
+# import sys
+# from PyQt5.QtCore import *
+# from PyQt5.QtGui import *
+# from PyQt5.QtWidgets import *
+# from PyQt5.QtMultimedia import *
+# from PyQt5.QtMultimediaWidgets import *
+# import icon_resource
 
 ##################################################################################################
 # ---------------------------------------------------------------------------------------------- #
@@ -37,6 +79,14 @@ class Window(QMainWindow):
         menu = self.menuBar()
         file = menu.addMenu("File")
         file.addAction("Open File")
+        record = menu.addMenu("record")
+        record_start = record.addAction("starting record")
+        record_show_files = record.addAction("show records")
+
+        # Connect the actions to functions
+        record_start.triggered.connect(self.start_recording)  # Assuming you have a start_recording method
+        record_show_files.triggered.connect(self.show_recording)   # Assuming you have a show_records method
+
         # showing the pop menu for file system to selected file
         file.triggered[QAction].connect(self.open_file)
 
@@ -49,6 +99,7 @@ class Window(QMainWindow):
         # class that allows a video to be displayed inside box (frame)
         self.videoItem = QGraphicsVideoItem()
         self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
+
         
         # ## record  video
         # self.recording = False
@@ -89,6 +140,14 @@ class Window(QMainWindow):
         self.p_play.setStyleSheet('background-color: rgb(32, 32, 32)')
         self.p_play.setEnabled(False)
         self.p_play.clicked.connect(self.ply)
+
+        # Create stop button
+        self.stop_record_button = QPushButton()
+        self.stop_record_button.setIcon(QIcon(":/icons/stop.png"))
+        self.stop_record_button.setToolTip("Stop Recording")
+        self.stop_record_button.clicked.connect(self.stop_recording)
+        self.stop_record_button.hide() # hide it initially
+
 
         self.rm = QPushButton(" Remove ")
         self.rm.setToolTip('Remove Item from Playlist')
@@ -260,6 +319,9 @@ class Window(QMainWindow):
         # self.hbox_2.addWidget(self.record_button) # Add record button to layout
 
 
+        # Add stop button to layout for recording
+        self.hbox_2.addWidget(self.stop_record_button)
+
         self.gb.setLayout(self.hbox_2)
 
         self.stack1 = QWidget()
@@ -269,6 +331,8 @@ class Window(QMainWindow):
         self.hbox_3 = QHBoxLayout()
         self.hbox_3.addWidget(graphicsView)
         self.stack1.setLayout(self.hbox_3)
+
+        
 
         #-------------- stack 2 vbox_2 ---------- #
         self.hbox_4 = QHBoxLayout()
@@ -318,7 +382,8 @@ class Window(QMainWindow):
     #             self.recording = False
     #             self.record_button.setText("Record")
     #
-    def resizeEvent(self, event): # pyright: ignore
+
+    def resizeEvent(self, event):
         #print("W", self.width(), "H", self.height())
         h = self.height() - 125
         w = self.width() - 26
@@ -331,7 +396,7 @@ class Window(QMainWindow):
             *.wmv *.flac *.3g2 *.m4a *.m4v *.aac *.asf *.3gpp';;All Files (*.*)") #
         filetype = ['.mp4', '.3gp', '.mkv', '.avi', '.mov', '.mp3', '.wav',
                     '.wma', '.wmv', '.flac', '.3g2', '.m4a', '.m4v', '.aac', '.asf',
-                    '.3gpp', '.flv', '.webm']
+                    '.3gpp', '.flv']
         if filenames:
             for file in filenames:
                 if any(x in file for x in filetype):
@@ -459,6 +524,69 @@ class Window(QMainWindow):
             self.playback_Label.setText("Current Playlist is in Loop off")
 
     # --- Function to Play or Pause ----- #
+    def start_recording(self):
+        print("Starting record")
+        self.recording = True
+        self.stop_record_button.show()
+
+        # Get available cameras
+        cameras = QMediaDevices.videoInputs()
+        if not cameras:
+            print("No cameras available.")
+            return
+
+        # Use the first available camera
+        camera = QCamera(cameras[0])
+
+        # Create media recorder
+        self.recorder = QMediaRecorder(camera)
+        self.recorder.setOutputLocation(QUrl.fromLocalFile("recording.mp4"))  # Replace with desired file path
+
+        # Set video output to the video item
+        self.recorder.setVideoOutput(self.videoItem)
+
+        # Start recording
+        self.recorder.record()
+
+    def stop_recording(self):
+        print("Stopping record")
+        self.recording = False
+        self.stop_record_button.hide()
+
+        if self.recorder:
+            self.recorder.stop()
+            self.recorder = None
+
+    def show_recording(self):
+        """
+        Opens the Downloads folder in the system's file explorer.
+        """
+        system = platform.system()
+
+        if system == "Windows":
+            downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+            try:
+                os.startfile(downloads_path)  # Opens the folder in the default file explorer
+            except OSError as e:
+                print(f"Error opening Downloads folder: {e}")
+
+        elif system == "Linux":
+            downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+            try:
+                subprocess.Popen(["xdg-open", downloads_path]) # will open the default file manager.
+            except OSError as e:
+                print(f"Error opening Downloads folder: {e}")
+
+        elif system == "Darwin": # MacOS
+            downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+            try:
+                subprocess.Popen(["open", downloads_path])
+            except OSError as e:
+                print(f"Error opening Downloads folder: {e}")
+
+        else:
+            print("Unsupported operating system.")
+
     def play_video(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.mediaPlayer.pause()
