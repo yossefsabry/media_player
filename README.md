@@ -27,7 +27,7 @@ This media player supports a wide range of audio and video formats, including:
 To run this project, ensure you have the following Python libraries installed:
 
 ```sh
-pip install PyQt5 PyQt5-sip PyQt5-Qt5 auto-py-to-exe
+pip install PyQt5 PyQt5-sip PyQt5-Qt5
 ```
 
 ## Installation & Usage
@@ -48,8 +48,8 @@ pip install PyQt5 PyQt5-sip PyQt5-Qt5 auto-py-to-exe
    ```
 4. Run the application:
    ```sh
-   python3 MediaPlayer.py # on Linux/macOs
-   #python MediaPlayer.py # on windows
+   python3 main.py # on Linux/macOs
+   #python main.py # on windows
    ```
 
 ## Creating an Executable (.exe)
