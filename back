@@ -44,14 +44,6 @@ from PyQt5.QtMultimedia import (
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 import icon_resource
 
-# import sys
-# from PyQt5.QtCore import *
-# from PyQt5.QtGui import *
-# from PyQt5.QtWidgets import *
-# from PyQt5.QtMultimedia import *
-# from PyQt5.QtMultimediaWidgets import *
-# import icon_resource
-
 ##################################################################################################
 # ---------------------------------------------------------------------------------------------- #
 # PyQt5 Documentation : https://doc.qt.io/qtforpython-5/PySide2/QtMultimedia/QMediaPlayer.html   #
@@ -237,12 +229,12 @@ class Window(QMainWindow):
 
         # mute button
         self.mute = QPushButton()
-        self.mute.setIcon(self.style().standardIcon(QStyle.SP_MediaVolume))
+        self.mute.setIcon(self.style().standardIcon(QStyle.SP_MediaVolume)) 
         self.mute.clicked.connect(self.mute_fn)
         self.mute.installEventFilter(self)
 
         # volume button sidebar
-        self.volume_slider = QSlider(Qt.Horizontal)
+        self.volume_slider = QSlider(Qt.Horizontal) # pyright: ignore
         self.volume_slider.setFixedWidth(100)
         self.volume_slider.setRange(0, 100)
         self.volume_slider.setProperty('value', 50)
@@ -297,8 +289,7 @@ class Window(QMainWindow):
         self.hbox_1.addWidget(self.currentTimeLabel)
         self.hbox_1.addWidget(self.time_slider)
         self.hbox_1.addWidget(self.totalTimeLabel)
-        # -- hbox_2 layout contains control widgets in a group box --#
-        self.hbox_2.setSpacing(20)
+        # -- hbox_2 layout contains control widgets in a group box --# self.hbox_2.setSpacing(20)
         self.hbox_2.addWidget(self.plist)
         self.hbox_2.addSpacing(20)
         self.hbox_2.addWidget(self.previous)
