@@ -73,12 +73,12 @@ class Window(QMainWindow):
         record_start = record.addAction("starting record")
         record_show_files = record.addAction("show records")
 
+        # showing the pop menu for file system to selected file
+        file.triggered[QAction].connect(self.open_file)
+
         # Connect the actions to functions
         record_start.triggered.connect(self.start_recording)  # Assuming you have a start_recording method
         record_show_files.triggered.connect(self.show_recording)   # Assuming you have a show_records method
-
-        # showing the pop menu for file system to selected file
-        file.triggered[QAction].connect(self.open_file)
 
         # ---- Creating Media Objects ---- #
         self.mediaPlayer = QMediaPlayer()
@@ -280,13 +280,17 @@ class Window(QMainWindow):
         self.vbox   = QVBoxLayout()
         self.hbox_1 = QHBoxLayout()
         self.hbox_2 = QHBoxLayout()
+
+
         # -- Group box widget -- #
         self.gb = QGroupBox()
         self.gb.setStyleSheet('border-radius: 10px ;''background-color:rgba(42, 42, 42, 90)')
+
         # -- hbox_1 layout contains time slider and timing labels #
         self.hbox_1.addWidget(self.currentTimeLabel)
         self.hbox_1.addWidget(self.time_slider)
         self.hbox_1.addWidget(self.totalTimeLabel)
+
         # -- hbox_2 layout contains control widgets in a group box --# self.hbox_2.setSpacing(20)
         self.hbox_2.addWidget(self.plist)
         self.hbox_2.addSpacing(20)
@@ -306,10 +310,8 @@ class Window(QMainWindow):
         self.hbox_2.addWidget(self.pb_speed)
         self.hbox_2.addWidget(self.aspr)
         # self.hbox_2.addWidget(self.record_button) # Add record button to layout
-
-
         # Add stop button to layout for recording
-        self.hbox_2.addWidget(self.stop_record_button)
+        #self.hbox_2.addWidget(self.stop_record_button)
 
         self.gb.setLayout(self.hbox_2)
 
@@ -347,6 +349,7 @@ class Window(QMainWindow):
         self.vbox.addLayout(self.hbox_1)
         self.vbox.addWidget(self.gb)
         self.vbox.setAlignment(Qt.AlignBottom)
+
         # -- set vbox layout to main window  -- #
         widget = QWidget()
         widget.setLayout(self.vbox)
@@ -513,6 +516,7 @@ class Window(QMainWindow):
             self.playback_Label.setText("Current Playlist is in Loop off")
 
     # --- Function to Play or Pause ----- #
+    # now working
     def start_recording(self):
         print("Starting record")
         self.recording = True
@@ -595,7 +599,7 @@ class Window(QMainWindow):
         self.time_slider.setValue(position)
         self.time_slider.blockSignals(False)
         if position >= 0:
-            # starging move
+            # starting move
             self.currentTimeLabel.setText(hhmmss(position))
 
     # update the duration

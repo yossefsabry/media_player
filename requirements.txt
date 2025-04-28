@@ -1,4 +1,6 @@
 PyQt5
 PyQt5-sip
 PyQt5-Qt5
-auto-py-to-exe
+PyQt6
+PyQt6-sip
+PyQt6-Qt6

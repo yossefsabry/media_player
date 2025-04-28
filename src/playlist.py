@@ -2,6 +2,8 @@
 # from PyQt5.QtCore import Qt, QAbstractListModel
 from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt, QAbstractListModel
+from PyQt5.QtCore import QAbstractListModel  # or PySide2/Qt6 equivalent
+
 
 
 class PlaylistModel(QAbstractListModel):
