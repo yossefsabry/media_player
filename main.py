@@ -23,9 +23,9 @@ def main():
 if __name__ == '__main__':
     # for windows OS the preferred plugin to support media files
     # os.environ['QT_MULTIMEDIA_PREFERRED_PLUGINS'] = 'windowsmediafoundation'
-    os.environ['QT_LOGGING_RULES'] = 'qt.multimedia.*=false'
-    os.environ["QT_MEDIA_AUDIO_BACKEND"] = "alsa"  # Bypass PulseAudio/LADSPA
-    os.environ["PIPEWIRE_RUNTIME_DIR"] = "/tmp"  # Workaround for some issues
-    os.environ["GST_PIPEWIRE"] = "1"  # Force GStreamer to use PipeWire
-    os.environ["QT_MEDIA_BACKEND"] = "gstreamer"  # Ensure Qt uses GStreamer
+    # os.environ['QT_LOGGING_RULES'] = 'qt.multimedia.*=false'
+    # os.environ["QT_MEDIA_AUDIO_BACKEND"] = "alsa"  # Bypass PulseAudio/LADSPA
+    # os.environ["PIPEWIRE_RUNTIME_DIR"] = "/tmp"  # Workaround for some issues
+    # os.environ["GST_PIPEWIRE"] = "1"  # Force GStreamer to use PipeWire
+    # os.environ["QT_MEDIA_BACKEND"] = "gstreamer"  # Ensure Qt uses GStreamer
     main()
