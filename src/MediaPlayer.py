@@ -41,6 +41,7 @@ from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 import icon_resource
 
 from .playlist import PlaylistModel
+#from ..helpers.hhmmss import hhmmss
 
 ##################################################################################################
 # ---------------------------------------------------------------------------------------------- #
@@ -440,7 +441,7 @@ class Window(QMainWindow):
             self.stack.setCurrentIndex(0)
 
     # -- Function to change aspect ratio -- #
-    ## FIX: TODO
+    ## FIX: TODO == !! DONE !! ==
     def aspRatio(self):
         if self.aspr.isChecked():
             self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
@@ -631,29 +632,29 @@ class Window(QMainWindow):
     # -- Function for shortcut keys -- #
     def keyPressEvent(self, event):
         # --- Keyboard shortcut keys ---#
-        if event.key() == Qt.Key_S:
+        if event.key() == Qt.Key.Key_S:
             self.mediaPlayer.stop()
-        if event.key() == Qt.Key_A:
+        if event.key() == Qt.Key.Key_A:
             self.backward()
-        if event.key() == Qt.Key_D:
+        if event.key() == Qt.Key.Key_D:
             self.forward()
-        if event.key() == Qt.Key_Space:
+        if event.key() == Qt.Key.Key_Space:
             self.play_video()
-        if event.key() == Qt.Key_1:
+        if event.key() == Qt.Key.Key_1:
             self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
-        if event.key() == Qt.Key_2:
+        if event.key() == Qt.Key.Key_2:
             self.videoItem.setAspectRatioMode(Qt.IgnoreAspectRatio)
-        if event.key() == Qt.Key_M:
+        if event.key() == Qt.Key.Key_M:
             self.mute_fn()
-        if event.key() == Qt.Key_P:
+        if event.key() == Qt.Key.Key_P:
             self.plistview()
-        if event.key() == Qt.Key_V:
+        if event.key() == Qt.Key.Key_V:
             self.playlist.previous()
-        if event.key() == Qt.Key_N:
+        if event.key() == Qt.Key.Key_N:
             self.playlist.next()
-        if event.key() == Qt.Key_Plus:
+        if event.key() == Qt.Key.Key_Plus:
             self.volume_slider.setValue(self.volume_slider.value() + 2)
-        if event.key() == Qt.Key_Minus:
+        if event.key() == Qt.Key.Key_Minus:
             self.volume_slider.setValue(self.volume_slider.value() - 2)
 
 
