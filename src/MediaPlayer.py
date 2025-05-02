@@ -43,6 +43,11 @@ import icon_resource
 from .playlist import PlaylistModel
 #from ..helpers.hhmmss import hhmmss
 
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from helpers.hhmmss import hhmmss
+
 ##################################################################################################
 # ---------------------------------------------------------------------------------------------- #
 # PyQt5 Documentation : https://doc.qt.io/qtforpython-5/PySide2/QtMultimedia/QMediaPlayer.html   #
@@ -78,8 +83,10 @@ class Window(QMainWindow):
         file.triggered[QAction].connect(self.open_file)
 
         # Connect the actions to functions
-        record_start.triggered.connect(self.start_recording)  # Assuming you have a start_recording method
-        record_show_files.triggered.connect(self.show_recording)   # Assuming you have a show_records method
+        # Assuming you have a start_recording method
+        record_start.triggered.connect(self.start_recording)  
+        # Assuming you have a show_records method
+        record_show_files.triggered.connect(self.show_recording)
 
         # ---- Creating Media Objects ---- #
         self.mediaPlayer = QMediaPlayer()
@@ -89,7 +96,7 @@ class Window(QMainWindow):
 
         # class that allows a video to be displayed inside box (frame)
         self.videoItem = QGraphicsVideoItem()
-        self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
+        self.videoItem.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
 
         
         # ## record  video
@@ -101,8 +108,8 @@ class Window(QMainWindow):
         # like scroll for image
         scene = QGraphicsScene(self)
         graphicsView = QGraphicsView(scene)
-        graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scene.addItem(self.videoItem)
 
         # connects signals to functions that update the UI based on changes 
@@ -123,7 +130,8 @@ class Window(QMainWindow):
 
         # handle when click on playlist view and when click on song inside
         selection_model = self.playlistView.selectionModel()
-        selection_model.selectionChanged.connect(self.playlist_selection_changed)
+        if selection_model:
+            selection_model.selectionChanged.connect(self.playlist_selection_changed)
         self.playlistView.doubleClicked.connect(self.ply)
 
         # connent inside window for playlist
@@ -150,23 +158,23 @@ class Window(QMainWindow):
         self.playback_Label.setToolTip('Playback Mode')
         self.playback_Label.setFixedWidth(200)
         self.playback_Label.setStyleSheet("color: silver;""border-style: solid;""border-width: 1px;""border-color: rgba(250, 128, 114, 95);""border-radius: 10px")
-        self.playback_Label.setAlignment(Qt.AlignCenter)
+        self.playback_Label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.playback_Label.setText("Current Playlist is in Loop Off")
 
         # ----- Creating time progress widgets ------ #
         self.currentTimeLabel = QLabel()
         self.currentTimeLabel.setMinimumSize(80, 0)
-        self.currentTimeLabel.setAlignment(Qt.AlignCenter)
+        self.currentTimeLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.currentTimeLabel.setText(hhmmss(0))
 
-        self.time_slider = QSlider(Qt.Horizontal)
+        self.time_slider = QSlider(Qt.Orientation.Horizontal)
         self.time_slider.setRange(0, 0)
         self.time_slider.sliderMoved.connect(self.set_position)
 
         # the main progress for song blue
         self.totalTimeLabel = QLabel()
         self.totalTimeLabel.setMinimumSize(80, 0)
-        self.totalTimeLabel.setAlignment(Qt.AlignCenter)
+        self.totalTimeLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.totalTimeLabel.setText(hhmmss(0))
 
         # ------ Creating Control widgets ---------- #
@@ -336,7 +344,7 @@ class Window(QMainWindow):
         self.hbox_4.addSpacing(2)
         self.hbox_4.addWidget(self.rm)
         self.hbox_4.addStretch(1)
-        self.hbox_4.setAlignment(Qt.AlignCenter)
+        self.hbox_4.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.vbox_2 = QVBoxLayout()
         self.vbox_2.addWidget(self.playlistView)
         self.vbox_2.addLayout(self.hbox_4)
@@ -349,7 +357,7 @@ class Window(QMainWindow):
         self.vbox.addWidget(self.stack)
         self.vbox.addLayout(self.hbox_1)
         self.vbox.addWidget(self.gb)
-        self.vbox.setAlignment(Qt.AlignBottom)
+        self.vbox.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
         # -- set vbox layout to main window  -- #
         widget = QWidget()
@@ -444,9 +452,9 @@ class Window(QMainWindow):
     ## FIX: TODO == !! DONE !! ==
     def aspRatio(self):
         if self.aspr.isChecked():
-            self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
+            self.videoItem.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         else:
-            self.videoItem.setAspectRatioMode(Qt.IgnoreAspectRatio)
+            self.videoItem.setAspectRatioMode(Qt.AspectRatioMode.IgnoreAspectRatio)
 
     #-- Function to select playback speed --- #
     def playback_speed(self, action):
@@ -634,36 +642,26 @@ class Window(QMainWindow):
         # --- Keyboard shortcut keys ---#
         if event.key() == Qt.Key.Key_S:
             self.mediaPlayer.stop()
-        if event.key() == Qt.Key.Key_A:
+        if event.key() == Qt.Key.Key_H:
             self.backward()
-        if event.key() == Qt.Key.Key_D:
+        if event.key() == Qt.Key.Key_L:
             self.forward()
         if event.key() == Qt.Key.Key_Space:
             self.play_video()
         if event.key() == Qt.Key.Key_1:
-            self.videoItem.setAspectRatioMode(Qt.KeepAspectRatio)
+            self.videoItem.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         if event.key() == Qt.Key.Key_2:
-            self.videoItem.setAspectRatioMode(Qt.IgnoreAspectRatio)
+            self.videoItem.setAspectRatioMode(Qt.AspectRatioMode.IgnoreAspectRatio)
         if event.key() == Qt.Key.Key_M:
             self.mute_fn()
         if event.key() == Qt.Key.Key_P:
             self.plistview()
-        if event.key() == Qt.Key.Key_V:
+        if event.key() == Qt.Key.Key_J:
             self.playlist.previous()
-        if event.key() == Qt.Key.Key_N:
+        if event.key() == Qt.Key.Key_K:
             self.playlist.next()
         if event.key() == Qt.Key.Key_Plus:
             self.volume_slider.setValue(self.volume_slider.value() + 2)
         if event.key() == Qt.Key.Key_Minus:
             self.volume_slider.setValue(self.volume_slider.value() - 2)
-
-
-
-# SLOVE THIS AND FIND NEW STRUCTURE
-# --- function to convert from milliseconds to hh:mm:ss
-def hhmmss(ms):
-    s = round(ms / 1000)
-    m, s = divmod(s, 60)
-    h, m = divmod(m, 60)
-    return ("%d:%02d:%02d" % (h, m, s)) if h else ("%d:%02d" % (m, s))
 
